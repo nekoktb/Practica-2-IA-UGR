@@ -47,52 +47,93 @@ char ViablePorAlturaT(char casilla, int dif){
  * @param i terreno que hay en la posición 1 de superficie (45 izq)
  * @param c terreno que hay en la posición 2 de superficie (justo delante)
  * @param d terreno que hay en la posición 3 de superficie (45 dch)
+ * @param vis_i número de visitas a la casilla izquierda
+ * @param vis_c número de visitas a la casilla central
+ * @param vis_d número de visitas a la casilla derecha
  * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
  */
-int VeoCasillaInteresanteT(char i, char c, char d) {
-  if (c == 'U') return 2;
-  else if (i == 'U') return 1;
-  else if (d == 'U') return 3;
-  //Nota: ahora mismo las zapatillas dan igual, luego igual hay que cambiar esto
-  else if (c == 'C') return 2;
-  else if (i == 'C') return 1;
-  else if (d == 'C') return 3;
-  else return 0;
+int VeoCasillaInteresanteT_Nivel0(char i, char c, char d, int vis_i, int vis_c, int vis_d) {
+  int mejor_opcion = 0;     
+  int min_visitas = 999999; 
+
+  // Para el técnico, es transitable tratamiento de residuos (U), camino (C) o zapatillas (D)
+  bool transitable_i = (i == 'U' || i == 'C' || i == 'D');
+  bool transitable_c = (c == 'U' || c == 'C' || c == 'D');
+  bool transitable_d = (d == 'U' || d == 'C' || d == 'D');
+
+  // Evaluamos en orden de preferencia: Centro > Izquierda > Derecha
+  if (transitable_c == true && vis_c < min_visitas) { 
+      mejor_opcion = 2;       
+      min_visitas = vis_c;    
+  }
+
+  if (transitable_i == true && vis_i < min_visitas) { 
+      mejor_opcion = 1;       
+      min_visitas = vis_i;
+  }
+
+  if (transitable_d == true && vis_d < min_visitas) { 
+      mejor_opcion = 3;       
+      min_visitas = vis_d;
+  }
+
+  return mejor_opcion;
 }
 
 // Niveles del técnico
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_0(Sensores sensores) {
   Action accion = IDLE;
 
-  // Actualiza el mapa con la visión actual
-  ActualizarMapa(sensores);
-
-  // Si está evadiendo, continuar girando
-  if (evadiendo) {
-    accion = TURN_SL;
-    evadiendo = false;
-    last_action = accion;
-    return accion;
+  // 1. GESTIÓN DE LA MANIOBRA DE EVASIÓN (Giro de 180º)
+  if (giro45Izq > 0) {
+    giro45Izq--;
+    last_action = TURN_SL;
+    return TURN_SL;
   }
 
-  // Actualización de variables de estado
-  if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
+  ActualizarMapa(sensores);
 
-  // Definición de comportamiento 
-  if (sensores.superficie[0] == 'U') return IDLE;
+  // 2. REGISTRAR VISITA ACTUAL
+  mapa_visitas[{sensores.posF, sensores.posC}]++;
 
+  if (sensores.superficie[0] == 'U') return IDLE; // Condición de parada base
+
+  // 3. OBTENER VISITAS DE LAS CASILLAS FRONTALES USANDO Delante()
+  ubicacion estado_actual;
+  estado_actual.f = sensores.posF;
+  estado_actual.c = sensores.posC;
+  estado_actual.brujula = sensores.rumbo;
+
+  // Visitas Centro (frente directo)
+  ubicacion pos_c = Delante(estado_actual);
+  int vis_c = mapa_visitas[{pos_c.f, pos_c.c}];
+
+  // Visitas Izquierda (rumbo - 1)
+  ubicacion estado_izq = estado_actual;
+  estado_izq.brujula = (Orientacion)(((int)estado_actual.brujula + 7) % 8);
+  ubicacion pos_i = Delante(estado_izq);
+  int vis_i = mapa_visitas[{pos_i.f, pos_i.c}];
+
+  // Visitas Derecha (rumbo + 1)
+  ubicacion estado_dch = estado_actual;
+  estado_dch.brujula = (Orientacion)(((int)estado_actual.brujula + 1) % 8);
+  ubicacion pos_d = Delante(estado_dch);
+  int vis_d = mapa_visitas[{pos_d.f, pos_d.c}];
+
+  // Comprobar alturas y elegir la mejor opción
   char i = ViablePorAlturaT(sensores.superficie[1], sensores.cota[1] - sensores.cota[0]);
   char c = ViablePorAlturaT(sensores.superficie[2], sensores.cota[2] - sensores.cota[0]);
   char d = ViablePorAlturaT(sensores.superficie[3], sensores.cota[3] - sensores.cota[0]);
-
-  int pos = VeoCasillaInteresanteT(i, c, d);
+  int pos = VeoCasillaInteresanteT_Nivel0(i, c, d, vis_i, vis_c, vis_d);
+  
   switch (pos)
   {
   case 2:
-    if (!sensores.choque) accion = WALK;
-    else {
+    if (!sensores.choque) {
+      accion = WALK;
+    } else {
       accion = TURN_SL;
-      evadiendo = true;
+      giro45Izq = 3;
     }
     break;
   case 1:
@@ -106,7 +147,6 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_0(Sensores sensores) {
     break;
   }
   
-  //devolver la siguiente accion a hacer
   last_action = accion;
   return accion;
 }

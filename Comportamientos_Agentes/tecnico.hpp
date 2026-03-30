@@ -5,6 +5,9 @@
 #include <time.h>
 #include <thread>
 #include <list>
+#include <map>
+#include <utility>
+
 
 #include "comportamientos/comportamiento.hpp"
 
@@ -36,7 +39,6 @@ public:
     last_action = IDLE;
     tiene_zapatillas = false;
     giro45Izq = 0;
-    evadiendo = false;
   }
 
   /**
@@ -195,7 +197,9 @@ private:
   Action last_action;     // Variable para almacenar la última acción tomada
   bool tiene_zapatillas;  // Indica si el agente ha recogido las zapatillas 
   int giro45Izq;          // Indica el numero de giros a la izq que quedan por dar
-  bool evadiendo;         // Indica si el tecnico está en modo evasión para no chocar con el ingeniero
+  // Mapa para contar cuántas veces se ha visitado una coordenada {fila, columna}:
+  std::map<std::pair<int, int>, int> mapa_visitas;
+
 };
 
 
@@ -217,9 +221,12 @@ char ViablePorAlturaT(char casilla, int dif);
  * @param i terreno que hay en la posición 1 de superficie (45 izq)
  * @param c terreno que hay en la posición 2 de superficie (justo delante)
  * @param d terreno que hay en la posición 3 de superficie (45 dch)
+ * @param vis_i número de visitas a la casilla izquierda
+ * @param vis_c número de visitas a la casilla central
+ * @param vis_d número de visitas a la casilla derecha
  * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
  */
-int VeoCasillaInteresanteT(char i, char c, char d);
+int VeoCasillaInteresanteT_Nivel0(char i, char c, char d, int vis_i, int vis_c, int vis_d);
 
 
 

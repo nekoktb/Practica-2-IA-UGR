@@ -62,22 +62,44 @@ char ViablePorAlturaI(char casilla, int dif, bool zap){
  * @param i terreno que hay en la posición 1 de superficie (45 izq)
  * @param c terreno que hay en la posición 2 de superficie (justo delante)
  * @param d terreno que hay en la posición 3 de superficie (45 dch)
+ * @param vis_i número de visitas a la casilla izquierda
+ * @param vis_c número de visitas a la casilla central
+ * @param vis_d número de visitas a la casilla derecha
  * @param zap indica si el agente tiene zapatillas
  * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
  */
-int VeoCasillaInteresanteI(char i, char c, char d, bool zap) {
-  if (c == 'U') return 2;
-  else if (i == 'U') return 1;
-  else if (d == 'U') return 3;
-  else if (!zap)  {
-    if (c == 'D') return 2;
-    else if (i == 'D') return 1;
-    else if (d == 'D') return 3;
+int VeoCasillaInteresanteI_Nivel0(char i, char c, char d, int vis_i, int vis_c, int vis_d, bool zap){
+  int mejor_opcion = 0;     
+  int min_visitas = 999999; // Récord de visitas altísimo para que cualquier casilla lo mejore
+
+  // 1. Primero, calculamos si cada casilla es "transitable" (si podemos pisarla o nos interesa)
+  // Para el ingeniero, nos interesa si es 'U' (tratamiento de residuos), 'C' (camino) 
+  // o 'D' (zapatillas) SOLO si aún no tenemos zapatillas (!zap).
+  bool transitable_i = (i == 'U' || i == 'C' || (i == 'D' && !zap));
+  bool transitable_c = (c == 'U' || c == 'C' || (c == 'D' && !zap));
+  bool transitable_d = (d == 'U' || d == 'C' || (d == 'D' && !zap));
+
+  // 2. Evaluamos la casilla del CENTRO
+  if (transitable_c == true && vis_c < min_visitas) { 
+      mejor_opcion = 2;       // 2 significa avanzar de frente
+      min_visitas = vis_c;    
   }
-  if (c == 'C') return 2;
-  else if (i == 'C') return 1;
-  else if (d == 'C') return 3;
-  else return 0;
+
+  // 3. Evaluamos la casilla de la IZQUIERDA
+  if (transitable_i == true && vis_i < min_visitas) { 
+      mejor_opcion = 1;       // 1 significa girar a la izquierda
+      min_visitas = vis_i;
+  }
+
+  // 4. Evaluamos la casilla de la DERECHA
+  if (transitable_d == true && vis_d < min_visitas) { 
+      mejor_opcion = 3;       // 3 significa girar a la derecha
+      min_visitas = vis_d;
+  }
+
+  // Devolvemos la opción ganadora (la que menos visitas tenía)
+  return mejor_opcion;
+
 }
 
 
@@ -86,10 +108,10 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
 {
   Action accion = IDLE;
 
-  // Si está evadiendo, continuar girando
-  if (evadiendo) {
+  // Si está evadiendo al técnico, continuar girando
+  if (giro45Izq > 0) {
     accion = TURN_SL;
-    evadiendo = false;
+    giro45Izq--;
     last_action = accion;
     return accion;
   }
@@ -97,24 +119,46 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   // Actualiza el mapa con la visión actual
   ActualizarMapa(sensores);
 
-  // Actualización de variables de estado
-  if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
+  // registrar visita a la casilla actual
+  mapa_visitas[{sensores.posF, sensores.posC}]++;
 
-  // Definición de comportamiento 
+  if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
   if (sensores.superficie[0] == 'U') return IDLE;
 
+  ubicacion estado_actual;
+  estado_actual.f = sensores.posF;
+  estado_actual.c = sensores.posC;
+  estado_actual.brujula = sensores.rumbo;
+
+  // Visitas Centro (frente directo)
+  ubicacion pos_c = Delante(estado_actual);
+  int vis_c = mapa_visitas[{pos_c.f, pos_c.c}];
+
+  // Visitas Izquierda (rumbo - 1)
+  ubicacion estado_izq = estado_actual;
+  estado_izq.brujula = (Orientacion)(((int)estado_actual.brujula + 7) % 8);
+  ubicacion pos_i = Delante(estado_izq);
+  int vis_i = mapa_visitas[{pos_i.f, pos_i.c}];
+
+  // Visitas Derecha (rumbo + 1)
+  ubicacion estado_dch = estado_actual;
+  estado_dch.brujula = (Orientacion)(((int)estado_actual.brujula + 1) % 8);
+  ubicacion pos_d = Delante(estado_dch);
+  int vis_d = mapa_visitas[{pos_d.f, pos_d.c}];
+
+ 
   char i = ViablePorAlturaI(sensores.superficie[1], sensores.cota[1] - sensores.cota[0], tiene_zapatillas);
   char c = ViablePorAlturaI(sensores.superficie[2], sensores.cota[2] - sensores.cota[0], tiene_zapatillas);
   char d = ViablePorAlturaI(sensores.superficie[3], sensores.cota[3] - sensores.cota[0], tiene_zapatillas);
+  
+  int pos = VeoCasillaInteresanteI_Nivel0(i, c, d, vis_i, vis_c, vis_d, tiene_zapatillas);
 
-  int pos = VeoCasillaInteresanteI(i, c, d, tiene_zapatillas);
-  switch (pos)
-  {
+  switch (pos){
   case 2:
     if (!sensores.choque) accion = WALK;
     else {
       accion = TURN_SL;
-      evadiendo = true;
+      giro45Izq = 3; // para dar la vuelta completa
     }
     break;
   case 1:
@@ -131,6 +175,7 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   //devolver la siguiente accion a hacer
   last_action = accion;
   return accion;
+
 }
 
 /**
