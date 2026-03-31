@@ -189,14 +189,170 @@ bool ComportamientoIngeniero::es_camino(unsigned char c) const
 }
 
 /**
+ * @brief Función de evaluación para decidir la mejor casilla a elegir en el nivel 1, considerando el tipo de terreno
+ * para darle prioridad a los caminos y senderos (C y S).
+ * @param terreno Carácter que representa el tipo de terreno 
+ * @param visitas Número de veces que se ha visitado esa casilla
+ * @return Un valor que combina el número de visitas con una penalización si el terreno no es un camino o sendero.
+ */
+int CondicionaPesoI_Nivel1(char terreno, int visitas){
+  if (terreno == 'C' || terreno == 'S' || terreno == 'D') {
+    return visitas; // Sin penalización para caminos, senderos y zapatillas (para evitar que no pueda continuar)
+  } else return visitas + 1000; // Penalización alta para zonas sin tratar
+}
+
+/**
+ * @brief Determina la mejor opcion entre las 3 casillas que tiene delante.
+ * @param i terreno que hay en la posición 1 de superficie (45 izq)
+ * @param c terreno que hay en la posición 2 de superficie (justo delante)
+ * @param d terreno que hay en la posición 3 de superficie (45 dch)
+ * @param vis_i número de visitas a la casilla izquierda
+ * @param vis_c número de visitas a la casilla central
+ * @param vis_d número de visitas a la casilla derecha
+ * @param zap indica si el agente tiene zapatillas
+ * @param can_jump indica si se puede saltar sobre la casilla central
+ * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
+ */
+int VeoCasillaInteresanteI_Nivel1(char i, char c, char d, int vis_i, int vis_c, int vis_d, bool zap, bool can_jump){
+  int mejor_opcion = 0;     
+  int min_visitas = 999999; // Récord de visitas altísimo para que cualquier casilla lo mejore
+
+  // Ahora los senderos tambien son transitables (S)
+  bool transitable_i = (i == 'U' || i == 'C' || i == 'S' || (i == 'D' && !zap));
+  bool transitable_c = (c == 'U' || c == 'C' || c == 'S' || (c == 'D' && !zap) || can_jump);
+  bool transitable_d = (d == 'U' || d == 'C' || d == 'S' || (d == 'D' && !zap));
+
+
+  if (transitable_c == true && CondicionaPesoI_Nivel1(c, vis_c) < min_visitas) { 
+      mejor_opcion = 2;       // avanzar de frente
+      min_visitas = CondicionaPesoI_Nivel1(c, vis_c);
+  }
+  if (transitable_i == true && CondicionaPesoI_Nivel1(i, vis_i) < min_visitas) { 
+      mejor_opcion = 1;       // girar a la izquierda
+      min_visitas = CondicionaPesoI_Nivel1(i, vis_i);
+  }
+  if (transitable_d == true && CondicionaPesoI_Nivel1(d, vis_d) < min_visitas) { 
+      mejor_opcion = 3;       // girar a la derecha
+      min_visitas = CondicionaPesoI_Nivel1(d, vis_d);
+  }
+
+  // Devolvemos la opción ganadora (la que menos visitas tenía)
+  return mejor_opcion;
+
+}
+
+
+/**
+ * @brief Determina si una casilla es transitable para el ingeniero.
+ * @param f Fila de la casilla.
+ * @param c Columna de la casilla.
+ * @param tieneZapatillas Indica si el agente posee las zapatillas.
+ * @return true si la casilla es transitable
+ */
+bool ComportamientoIngeniero::EsCasillaTransitableLevel1(int f, int c, bool tieneZapatillas)
+{
+  if (f < 0 || f >= mapaResultado.size() || c < 0 || c >= mapaResultado[0].size())
+    return false;
+  return (mapaResultado[f][c]=='C' || mapaResultado[f][c]=='S' || mapaResultado[f][c]=='D' || mapaResultado[f][c]=='U' );
+}
+/**
  * @brief Comportamiento reactivo del ingeniero para el Nivel 1.
  * @param sensores Datos actuales de los sensores.
  * @return Acción a realizar.
  */
 Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores)
 {
-  // TODO: Implementar comportamiento reactivo para el Nivel 1.
-  return IDLE;
+  
+  Action accion = IDLE;
+
+  // Si está evadiendo al técnico, continuar girando
+  if (giro45Izq > 0) {
+    accion = TURN_SL;
+    giro45Izq--;
+    last_action = accion;
+    return accion;
+  }
+
+  // Actualiza el mapa con la visión actual
+  ActualizarMapa(sensores);
+
+  // registrar visita a la casilla actual
+  mapa_visitas[{sensores.posF, sensores.posC}]++;
+
+  if (sensores.superficie[0] == 'D') tiene_zapatillas = true;
+  if (sensores.superficie[0] == 'U') return IDLE;
+
+  ubicacion estado_actual;
+  estado_actual.f = sensores.posF;
+  estado_actual.c = sensores.posC;
+  estado_actual.brujula = sensores.rumbo;
+
+  // Verificar si la casilla detrás es transitable para evitar caerse al saltar
+  ubicacion dos_pasos = Delante(Delante(estado_actual));
+  bool terreno_detras_transitable = EsCasillaTransitableLevel1(dos_pasos.f, dos_pasos.c, tiene_zapatillas);
+
+  // Visitas Centro (frente directo)
+  ubicacion pos_c = Delante(estado_actual);
+  int vis_c = mapa_visitas[{pos_c.f, pos_c.c}];
+
+  // Visitas Izquierda (rumbo - 1)
+  ubicacion estado_izq = estado_actual;
+  estado_izq.brujula = (Orientacion)(((int)estado_actual.brujula + 7) % 8);
+  ubicacion pos_i = Delante(estado_izq);
+  int vis_i = mapa_visitas[{pos_i.f, pos_i.c}];
+
+  // Visitas Derecha (rumbo + 1)
+  ubicacion estado_dch = estado_actual;
+  estado_dch.brujula = (Orientacion)(((int)estado_actual.brujula + 1) % 8);
+  ubicacion pos_d = Delante(estado_dch);
+  int vis_d = mapa_visitas[{pos_d.f, pos_d.c}];
+
+  char i = ViablePorAlturaI(sensores.superficie[1], sensores.cota[1] - sensores.cota[0], tiene_zapatillas);
+  //char c = ViablePorAlturaI(sensores.superficie[2], sensores.cota[2] - sensores.cota[0], tiene_zapatillas);
+  char c = sensores.superficie[2]; // Para el centro, no considerar la altura para permitir saltar aunque haya un desnivel
+  if (c == 'P') terreno_detras_transitable = false; // Si el terreno central es precipicio eliminamos la opcion de saltar.
+  char d = ViablePorAlturaI(sensores.superficie[3], sensores.cota[3] - sensores.cota[0], tiene_zapatillas);
+
+  // Para 'U', considerarlo viable aunque no lo sea por altura, para poder saltar
+  if (sensores.superficie[2] == 'U') c = 'U';
+  
+  int pos = VeoCasillaInteresanteI_Nivel1(i, c, d, vis_i, vis_c, vis_d, tiene_zapatillas, terreno_detras_transitable);
+
+  switch (pos){
+  case 2:
+    if (!sensores.choque) {
+      if (sensores.superficie[2] == 'U') {
+        if (terreno_detras_transitable) {
+          accion = JUMP;
+        } else {
+          accion = TURN_SL;
+          giro45Izq = 3; // para dar la vuelta completa
+        }
+      } else if ( !ViablePorAlturaI(sensores.superficie[2], sensores.cota[2] - sensores.cota[0], tiene_zapatillas) && terreno_detras_transitable) {
+        accion = JUMP;
+      } else {
+        accion = WALK;
+      }
+    } else {
+      accion = TURN_SL;
+      giro45Izq = 3; // para dar la vuelta completa
+    }
+    break;
+  case 1:
+    accion = TURN_SL;
+    break;
+  case 3:
+    accion = TURN_SR;
+    break;  
+  default:
+    accion = TURN_SL;
+    break;
+  }
+  
+  //devolver la siguiente accion a hacer
+  last_action = accion;
+  return accion;
+
 }
 
 // Niveles avanzados (Uso de búsqueda)

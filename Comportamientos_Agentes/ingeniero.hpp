@@ -180,7 +180,18 @@ protected:
  */
   void VisualizaRedTuberias(const list<Paso> &plan);
 
-
+ // =========================================================================
+ // Funciones añadidas
+  // =========================================================================
+  
+/**
+ * @brief Determina si una casilla es transitable para el ingeniero.
+ * @param f Fila de la casilla.
+ * @param c Columna de la casilla.
+ * @param tieneZapatillas Indica si el agente posee las zapatillas.
+ * @return true si la casilla es transitable
+ */
+bool EsCasillaTransitableLevel1(int f, int c, bool tieneZapatillas);
 
 private:
   // =========================================================================

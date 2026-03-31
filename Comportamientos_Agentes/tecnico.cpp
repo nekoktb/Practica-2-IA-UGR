@@ -42,6 +42,7 @@ char ViablePorAlturaT(char casilla, int dif){
     return 'P';
 }
 
+
 /**
  * @brief Determina la mejor opcion entre las 3 casillas que tiene delante.
  * @param i terreno que hay en la posición 1 de superficie (45 izq)
@@ -79,6 +80,7 @@ int VeoCasillaInteresanteT_Nivel0(char i, char c, char d, int vis_i, int vis_c, 
 
   return mejor_opcion;
 }
+
 
 // Niveles del técnico
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_0(Sensores sensores) {
@@ -160,6 +162,64 @@ bool ComportamientoTecnico::es_camino(unsigned char c) const {
   return (c == 'C' || c == 'D' || c == 'U');
 }
 
+/**
+ * @brief Función de evaluación para decidir la mejor casilla a elegir en el nivel 1, considerando el tipo de terreno
+ * para darle prioridad a los caminos y senderos (C y S).
+ * @param terreno Carácter que representa el tipo de terreno 
+ * @param visitas Número de veces que se ha visitado esa casilla
+ * @return Un valor que combina el número de visitas con una penalización si el terreno no es un camino o sendero.
+ */
+int CondicionaPesoT_Nivel1(char terreno, int visitas){
+  if (terreno == 'C' || terreno == 'S' || terreno == 'D') {
+    return visitas; // Sin penalización para caminos, senderos y zapatillas (para evitar que no pueda continuar)
+  } else return visitas + 1000; // Penalización alta para zonas sin tratar
+}
+/**
+ * @brief Determina la mejor opcion entre las 3 casillas que tiene delante para el Nivel 1.
+ * @param i terreno que hay en la posición 1 de superficie (45 izq)
+ * @param c terreno que hay en la posición 2 de superficie (justo delante)
+ * @param d terreno que hay en la posición 3 de superficie (45 dch)
+ * @param vis_i número de visitas a la casilla izquierda
+ * @param vis_c número de visitas a la casilla central
+ * @param vis_d número de visitas a la casilla derecha
+ * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
+ */
+int VeoCasillaInteresanteT_Nivel1(char i, char c, char d, int vis_i, int vis_c, int vis_d) {
+  int mejor_opcion = 0;
+  int min_peso = 999999;
+
+  // Ahora los senderos tambien son transitables (S)
+  bool transitable_i = (i == 'U' || i == 'C' || i == 'S' || i == 'D');
+  bool transitable_c = (c == 'U' || c == 'C' || c == 'S' || c == 'D');
+  bool transitable_d = (d == 'U' || d == 'C' || d == 'S' || d == 'D');
+
+  // Evaluamos en orden de preferencia: Centro > Izquierda > Derecha
+  if (transitable_c == true) {
+    int peso_c = CondicionaPesoT_Nivel1(c, vis_c);
+    if (peso_c < min_peso) {
+      mejor_opcion = 2;
+      min_peso = peso_c;
+    }
+  }
+
+  if (transitable_i == true) {
+    int peso_i = CondicionaPesoT_Nivel1(i, vis_i);
+    if (peso_i < min_peso) {
+      mejor_opcion = 1;
+      min_peso = peso_i;
+    }
+  }
+
+  if (transitable_d == true) {
+    int peso_d = CondicionaPesoT_Nivel1(d, vis_d);
+    if (peso_d < min_peso) {
+      mejor_opcion = 3;
+      min_peso = peso_d;
+    }
+  }
+
+  return mejor_opcion;
+}
 
 /**
  * @brief Comportamiento reactivo del técnico para el Nivel 1.
@@ -167,7 +227,73 @@ bool ComportamientoTecnico::es_camino(unsigned char c) const {
  * @return Acción a realizar.
  */
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
-  return IDLE;
+  Action accion = IDLE;
+
+  // Si está evadiendo al ingeniero, continuar girando
+  if (giro45Izq > 0) {
+    accion = TURN_SL;
+    giro45Izq--;
+    last_action = accion;
+    return accion;
+  }
+
+  // Actualiza el mapa con la visión actual
+  ActualizarMapa(sensores);
+
+  // registrar visita a la casilla actual
+  mapa_visitas[{sensores.posF, sensores.posC}]++;
+ 
+  //NOTA: de momento el técnico no tiene en cuenta las zapatillas
+
+  if (sensores.superficie[0] == 'U') return IDLE; // Condición de parada base
+
+  ubicacion estado_actual;
+  estado_actual.f = sensores.posF;
+  estado_actual.c = sensores.posC;
+  estado_actual.brujula = sensores.rumbo;
+
+  // obtener visitas
+  ubicacion pos_c = Delante(estado_actual);
+  int vis_c = mapa_visitas[{pos_c.f, pos_c.c}];
+
+  ubicacion estado_izq = estado_actual;
+  estado_izq.brujula = (Orientacion)((estado_actual.brujula + 7) % 8);
+  ubicacion pos_i = Delante(estado_izq);
+  int vis_i = mapa_visitas[{pos_i.f, pos_i.c}];
+
+  ubicacion estado_dch = estado_actual;
+  estado_dch.brujula = (Orientacion)((estado_actual.brujula + 1) % 8);
+  ubicacion pos_d = Delante(estado_dch);
+  int vis_d = mapa_visitas[{pos_d.f, pos_d.c}];
+
+  
+  char i = ViablePorAlturaT(sensores.superficie[1], sensores.cota[1] - sensores.cota[0]);
+  char c = ViablePorAlturaT(sensores.superficie[2], sensores.cota[2] - sensores.cota[0]);
+  char d = ViablePorAlturaT(sensores.superficie[3], sensores.cota[3] - sensores.cota[0]);
+
+  int pos = VeoCasillaInteresanteT_Nivel1(i, c, d, vis_i, vis_c, vis_d);
+
+  switch (pos) {
+    case 2:
+      if (!sensores.choque and sensores.superficie[2] != 'U') {
+          accion = WALK;
+      } else {
+        accion = TURN_SL;
+        giro45Izq = 3; // para dar la vuelta completa
+      }
+      break;
+    case 1:
+      accion = TURN_SL;
+      break;
+    case 3:
+      accion = TURN_SR;
+      break;
+    default:
+      accion = TURN_SL;
+      break;
+  }
+
+  return accion;
 }
 
 /**
@@ -404,6 +530,20 @@ void ComportamientoTecnico::ActualizarMapa(Sensores sensores) {
 bool ComportamientoTecnico::EsCasillaTransitableLevel0(int f, int c, bool tieneZapatillas) {
   if (f < 0 || f >= mapaResultado.size() || c < 0 || c >= mapaResultado[0].size()) return false;
   return es_camino(mapaResultado[f][c]);  // Solo 'C', 'S', 'D', 'U' son transitables en Nivel 0
+}
+
+/**
+ * @brief Determina si una casilla es transitable para el técnico en Nivel 1.
+ * Similar a Level0, pero puede extenderse para niveles avanzados.
+ * @param f Fila de la casilla.
+ * @param c Columna de la casilla.
+ * @param tieneZapatillas Indica si el agente posee las zapatillas.
+ * @return true si la casilla es transitable.
+ */
+bool ComportamientoTecnico::EsCasillaTransitableLevel1(int f, int c, bool tieneZapatillas) {
+  if (f < 0 || f >= mapaResultado.size() || c < 0 || c >= mapaResultado[0].size()) return false;
+  unsigned char terreno = mapaResultado[f][c];
+  return (terreno == 'C' || terreno == 'S' || terreno == 'D' || terreno == 'U' || (terreno == 'B' && tieneZapatillas));
 }
 
 /**

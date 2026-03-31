@@ -145,6 +145,7 @@ protected:
    */
   bool EsCasillaTransitableLevel0(int f, int c, bool tieneZapatillas);
 
+
   /**
    * @brief Comprueba si la casilla de delante es accesible por diferencia de altura.
    * REGLA PARA TÉCNICO: Desnivel máximo siempre 1 (independiente de zapatillas).
@@ -188,6 +189,20 @@ protected:
  * @param plan  Lista de acciones del plan.
  */
   void VisualizaPlan(const ubicacion &st, const list<Action> &plan);
+
+  /// =========================================================================
+  /// FUNCIONES EXTENDIDAS POR ALUMNO
+  /// =========================================================================
+
+  /**
+   * @brief Determina si una casilla es transitable para el técnico en Nivel 1.
+   * Similar a Level0, pero puede extenderse para niveles avanzados.
+   * @param f Fila de la casilla.
+   * @param c Columna de la casilla.
+   * @param tieneZapatillas Indica si el agente posee las zapatillas.
+   * @return true si la casilla es transitable.
+   */
+  bool EsCasillaTransitableLevel1(int f, int c, bool tieneZapatillas);
 
 private:
   // =========================================================================
