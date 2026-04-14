@@ -244,16 +244,10 @@ void MonitorJuego::put_active_objetivos(int number) {
  * @param[out] posCol   Columna del objetivo.
  */
 void MonitorJuego::get_n_active_objetivo(int n, int &posFila, int &posCol) {
-<<<<<<< HEAD
   if (2 * n + 1 < objetivosActivos.size()) {
     posFila = objetivosActivos[2 * n];
     posCol = objetivosActivos[2 * n + 1];
   }
-=======
-
-  posFila = objetivosActivos[0];
-  posCol = objetivosActivos[1];
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 }
 
 /**
@@ -265,7 +259,6 @@ void MonitorJuego::get_n_active_objetivo(int n, int &posFila, int &posCol) {
  * @param posCol   Nueva columna del objetivo.
  */
 void MonitorJuego::set_n_active_objetivo(int n, int posFila, int posCol) {
-<<<<<<< HEAD
   if (2 * n + 1 < objetivosActivos.size()) {
     objetivosActivos[2 * n] = posFila;
     objetivosActivos[2 * n + 1] = posCol;
@@ -274,14 +267,6 @@ void MonitorJuego::set_n_active_objetivo(int n, int posFila, int posCol) {
   for (unsigned int i = 0; i < entidades.size(); i++) {
     entidades[i]->setObjetivos(objetivosActivos);
   }
-=======
-
-  objetivosActivos[0] = posFila;
-  objetivosActivos[1] = posCol;
-
-  if (numero_entidades() > 0)
-    get_entidad(0)->setObjetivos(objetivosActivos);
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 }
 
 /**
@@ -1059,7 +1044,6 @@ bool MonitorJuego::checkPipeConnection(int startF, int startC) {
     int f = curr.first;
     int c = curr.second;
 
-<<<<<<< HEAD
     // Si la casilla actual es el destino FINAL ('U'), hemos tenido éxito.
     // Solo permitimos esto si NO es la casilla de inicio, o si la casilla de inicio
     // tiene al menos un bit de tubería puesto (para evitar victorias con 0 tuberías)
@@ -1109,39 +1093,6 @@ bool MonitorJuego::checkPipeConnection(int startF, int startC) {
           visited.insert({nf, nc});
           q.push({nf, nc});
         }
-=======
-    if (mapa->getCelda(f, c) == 'U')
-      return true;
-
-    unsigned char mask = mapaTuberias[f][c];
-
-    // Norte (bit 1)
-    if ((mask & 1) && f > 0) {
-      if (visited.find({f - 1, c}) == visited.end()) {
-        visited.insert({f - 1, c});
-        q.push({f - 1, c});
-      }
-    }
-    // Este (bit 4)
-    if ((mask & 4) && c < (int)mapa->getNCols() - 1) {
-      if (visited.find({f, c + 1}) == visited.end()) {
-        visited.insert({f, c + 1});
-        q.push({f, c + 1});
-      }
-    }
-    // Sur (bit 16)
-    if ((mask & 16) && f < (int)mapa->getNFils() - 1) {
-      if (visited.find({f + 1, c}) == visited.end()) {
-        visited.insert({f + 1, c});
-        q.push({f + 1, c});
-      }
-    }
-    // Oeste (bit 64)
-    if ((mask & 64) && c > 0) {
-      if (visited.find({f, c - 1}) == visited.end()) {
-        visited.insert({f, c - 1});
-        q.push({f, c - 1});
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
       }
     }
   }
@@ -1153,13 +1104,8 @@ bool MonitorJuego::checkPipeConnection(int startF, int startC) {
  * @brief Valida el plan de canalización propuesto por el ingeniero
  *        en el nivel 4.
  *
-<<<<<<< HEAD
  * Comprueba que el plan no esté vacío, comience en la casilla del ingeniero,
  * que cada paso sea adyacente al anterior, que las alturas
-=======
- * Comprueba que el plan no esté vacío, comience en la casilla objetivo
- * (BelPos), que cada paso sea adyacente al anterior, que las alturas
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
  * sean consistentes (misma altura o descenso de 1) y que el plan
  * termine en una casilla de tipo 'U'.
  *
@@ -1171,7 +1117,6 @@ bool MonitorJuego::checkLevel4() {
   ListaCasillasPlan plan = eng->getCanalizacionPlan();
 
   if (plan.empty()) {
-<<<<<<< HEAD
     addMensaje("Sistema", "Error Nivel 4: El plan presentado está vacío.");
     return false;
   }
@@ -1184,23 +1129,11 @@ bool MonitorJuego::checkLevel4() {
     stringstream ss;
     ss << "Error Nivel 4: El plan debe comenzar en la casilla de la Belkanita (" 
        << objF << "," << objC << ").";
-=======
-    addMensaje("Sistema", "Error Nivel 4: El plan de canalización está vacío.");
-    return false;
-  }
-
-  auto it = plan.begin();
-  // El punto de partida del plan debe ser la coordenada BelPos
-  if (it->fil != (int)objetivosActivos[0] || it->col != (int)objetivosActivos[1]) {
-    stringstream ss;
-    ss << "Error Nivel 4: El plan debe empezar en (" << objetivosActivos[0] << "," << objetivosActivos[1] << ").";
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     addMensaje("Sistema", ss.str());
     return false;
   }
 
   int last_h = (int)mapa->alturaEnCelda(it->fil, it->col) + it->op;
-<<<<<<< HEAD
   int curr_f = it->fil;
   int curr_c = it->col;
 
@@ -1216,44 +1149,18 @@ bool MonitorJuego::checkLevel4() {
     if (dist > 1) {
       stringstream ss;
       ss << "Error Nivel 4: Salto detectado en (" << it_check->fil << "," << it_check->col << ").";
-=======
-
-  int curr_f = it->fil;
-  int curr_c = it->col;
-
-  // Avanzar al segundo elemento
-  ++it;
-
-  for (; it != plan.end(); ++it) {
-    int h = (int)mapa->alturaEnCelda(it->fil, it->col) + it->op;
-
-    // Comprobación de adyacencia (misma casilla o ortogonalmente adyacente)
-    int dist = abs(it->fil - curr_f) + abs(it->col - curr_c);
-    if (dist > 1) {
-      stringstream ss;
-      ss << "Error Nivel 4: Salto detectado en (" << it->fil << "," << it->col << ").";
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
       addMensaje("Sistema", ss.str());
       return false;
     }
 
-<<<<<<< HEAD
     // Comprobación de consistencia de altura
     if (!(last_h == h || h == last_h - 1)) {
       stringstream ss;
       ss << "Error Nivel 4: Altura inconsistente en (" << it_check->fil << "," << it_check->col << ").";
-=======
-    // Comprobación de consistencia de altura: h_ant == h_sig o h_sig == h_ant -
-    // 1
-    if (!(last_h == h || h == last_h - 1)) {
-      stringstream ss;
-      ss << "Error Nivel 4: Altura inconsistente en (" << it->fil << "," << it->col << ").";
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
       addMensaje("Sistema", ss.str());
       return false;
     }
 
-<<<<<<< HEAD
     curr_f = it_check->fil;
     curr_c = it_check->col;
     last_h = h;
@@ -1273,25 +1180,12 @@ bool MonitorJuego::checkLevel4() {
     stringstream ss;
     ss << "Error Nivel 4: Se ha superado el impacto ecológico máximo permitido (" 
        << simulated_impact << " > " << maxImpacto << ").";
-=======
-    curr_f = it->fil;
-    curr_c = it->col;
-    last_h = h;
-  }
-
-  // Comprobar que la última posición es 'U'
-  char celda = mapa->getCelda(curr_f, curr_c);
-  if (celda != 'U') {
-    stringstream ss;
-    ss << "Error Nivel 4: El plan termina en '" << celda << "', debería ser 'U'.";
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     addMensaje("Sistema", ss.str());
     return false;
   }
 
   return true;
 }
-<<<<<<< HEAD
 
 /**
  * @brief Calcula el impacto ecológico total de un plan de canalización.
@@ -1330,8 +1224,6 @@ int MonitorJuego::calcularImpactoPlan(const ListaCasillasPlan &plan) {
 
   return total_impact;
 }
-=======
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 /**
  * @brief Elimina los marcadores visuales de acción fallida en una celda.
  *
@@ -1363,7 +1255,6 @@ void MonitorJuego::clearFailedAction(int f, int c) {
  */
 int MonitorJuego::getCosteEco(Action accion, unsigned char celda) {
   switch (accion) {
-<<<<<<< HEAD
     case INSTALL:
       if (celda == 'A') return 50;
       if (celda == 'H') return 45;
@@ -1384,41 +1275,5 @@ int MonitorJuego::getCosteEco(Action accion, unsigned char celda) {
       return 50;
     default:
       return 0;
-=======
-  case INSTALL:
-    switch (celda) {
-    case 'A':
-      return 50;
-    case 'H':
-      return 5;
-    case 'S':
-      return 7;
-    default:
-      return 10;
-    }
-  case RAISE:
-    switch (celda) {
-    case 'A':
-      return 0;
-    case 'H':
-      return 15;
-    case 'S':
-      return 7;
-    default:
-      return 5;
-    }
-  case DIG:
-    switch (celda) {
-    case 'A':
-      return 0;
-    case 'H':
-    case 'S':
-      return 10;
-    default:
-      return 2;
-    }
-  default:
-    return 0;
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   }
 }

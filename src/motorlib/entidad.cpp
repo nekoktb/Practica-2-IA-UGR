@@ -187,11 +187,7 @@ unsigned int Entidad::getObjCol(int pos) {
  * @return Acción elegida por la entidad para este instante.
  */
 Action Entidad::think(int acc, vector<vector<unsigned char>> vision,
-<<<<<<< HEAD
                       int level, int impacto_eco, int max_impact) {
-=======
-                      int level, int impacto_eco) {
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   Action accion = IDLE;
   Sensores sensor;
 
@@ -221,10 +217,7 @@ Action Entidad::think(int acc, vector<vector<unsigned char>> vision,
     sensor.posC = c;
     sensor.rumbo = orient;
     sensor.ecologico = impacto_eco;
-<<<<<<< HEAD
     sensor.max_ecologico = max_impact;
-=======
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 
     if (tipo == jugador) // Poner los sensores que se activan al jugador
     {
@@ -402,19 +395,12 @@ int Entidad::fixBateria_sig_accion_jugador(unsigned char celdaJugador,
       bateria_sig_accion = 1;
       break;
     }
-<<<<<<< HEAD
     if (celdaJugador == 'A' or celdaJugador == 'H' or celdaJugador == 'S') {
       if (difAltura > 0)
         bateria_sig_accion += 5;
       else if (difAltura < 0)
         bateria_sig_accion -= 2;
     }
-=======
-    if (difAltura > 0)
-      bateria_sig_accion += 5;
-    else if (difAltura < 0)
-      bateria_sig_accion -= 2;
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     break;
 
   case JUMP:

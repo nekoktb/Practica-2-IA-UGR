@@ -54,14 +54,11 @@ char ViablePorAlturaT(char casilla, int dif){
  * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
  */
 int VeoCasillaInteresanteT_Nivel0(char i, char c, char d, int vis_i, int vis_c, int vis_d) {
-<<<<<<< HEAD
   // Prioridad absoluta a la meta ('U')
   if (c == 'U') return 2; // Centro
   if (i == 'U') return 1; // Izquierda
   if (d == 'U') return 3; // Derecha
 
-=======
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   int mejor_opcion = 0;     
   int min_visitas = 999999; 
 

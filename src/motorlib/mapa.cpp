@@ -1787,10 +1787,7 @@ void Mapa::drawFirstPerson(int entidad, vector<unsigned int> objetivosActivos, i
   luz.draw();
 
   // --- Draw Clouds (Pixel-Art Clusters) ---
-<<<<<<< HEAD
   /* Nubes anuladas por rendimiento CPU/GPU
-=======
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   glDisable(GL_LIGHTING);
   glDisable(GL_FOG); // Ensure clouds are not washed out by fog
   glColor3f(0.95, 0.95, 1.0); // Very light blueish white
@@ -1826,10 +1823,7 @@ void Mapa::drawFirstPerson(int entidad, vector<unsigned int> objetivosActivos, i
   }
   glEnable(GL_FOG);
   glEnable(GL_LIGHTING);
-<<<<<<< HEAD
   */
-=======
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   // ----------------------------------------
 
   // Draw Trail
@@ -1850,11 +1844,7 @@ void Mapa::drawFirstPerson(int entidad, vector<unsigned int> objetivosActivos, i
 
 
   static float water_offset = 0.0f;
-<<<<<<< HEAD
   // water_offset += 0.005f; // Comentado para aligerar la simulación
-=======
-  water_offset += 0.005f;
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 
   // Fog of War: get agent's discovered map for levels 0, 1, 6
   vector<vector<unsigned char>> mapaVisible;
@@ -2508,31 +2498,18 @@ void Mapa::drawZenithal(int entidad, vector<unsigned int> objetivosActivos, int 
 
   // Rendering range scales with zoom
   int range = (int)(35.0f * zoom / 55.0f);
-<<<<<<< HEAD
 
   Luz luz(GL_LIGHT0);
   luz.setPosicion(_vertex3<float>(0.5, 1.0, 0.5)); // Directional Sun: Fixed angle everywhere
   luz.encender();
   luz.draw();
-=======
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   int fs = (int)x - range;
   int fi = (int)x + range;
   int ci = (int)z - range;
   int cd = (int)z + range;
 
-<<<<<<< HEAD
   static float water_offset_zenith = 0.0f;
   // water_offset_zenith += 0.005f; // Comentado para aligerar la simulación
-=======
-  Luz luz(GL_LIGHT0);
-  luz.setPosicion(_vertex3<float>(0.5, 1.0, 0.5)); // Directional Sun: Fixed angle everywhere
-  luz.encender();
-  luz.draw(); 
-
-  static float water_offset_zenith = 0.0f;
-  water_offset_zenith += 0.005f;
->>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 
   // Fog of War: get agent's discovered map for levels 0, 1, 6
   vector<vector<unsigned char>> mapaVisible;
