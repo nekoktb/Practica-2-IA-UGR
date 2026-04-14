@@ -77,7 +77,10 @@ bool actuacionIngeniero(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         monitor.addMensaje("Ingeniero", "Cayo al precipicio");
         monitor.get_entidad(0)->resetEntidad();
         monitor.get_entidad(0)->setHitbox(true);
+<<<<<<< HEAD
         monitor.setResetActivado(true);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         monitor.finalizarJuego();
         monitor.setMostrarResultados(true);
         break;
@@ -192,7 +195,10 @@ bool actuacionIngeniero(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         monitor.addMensaje("Ingeniero", "Cayo al vacio (desnivel)");
         monitor.get_entidad(0)->resetEntidad();
         monitor.get_entidad(0)->setHitbox(true);
+<<<<<<< HEAD
         monitor.setResetActivado(true);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         monitor.finalizarJuego();
         monitor.setMostrarResultados(true);
       }
@@ -230,7 +236,10 @@ bool actuacionIngeniero(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         monitor.addMensaje("Ingeniero", "Cayo al precipicio");
         monitor.get_entidad(0)->resetEntidad();
         monitor.get_entidad(0)->setHitbox(true);
+<<<<<<< HEAD
         monitor.setResetActivado(true);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         monitor.finalizarJuego();
         monitor.setMostrarResultados(true);
         break;
@@ -337,7 +346,10 @@ bool actuacionIngeniero(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         monitor.addMensaje("       FIN DE LA SIMULACION\n");
         monitor.get_entidad(0)->resetEntidad();
         monitor.get_entidad(0)->setHitbox(true);
+<<<<<<< HEAD
         monitor.setResetActivado(true);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         monitor.finalizarJuego();
         monitor.setMostrarResultados(true);
       }
@@ -458,9 +470,17 @@ bool actuacionIngeniero(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
             int startF = monitor.get_entidad(0)->getObjFil(0);
             int startC = monitor.get_entidad(0)->getObjCol(0);
             if (monitor.checkPipeConnection(startF, startC)) {
+<<<<<<< HEAD
               monitor.get_entidad(0)->setCompletoLosObjetivos();
               monitor.setMostrarResultados(true);
               monitor.finalizarJuego();
+=======
+              if (monitor.getLevel() == 5)
+                monitor.addMensaje("¡Nivel 5 completado con Exito! Conexion de tuberias establecida.\n");
+              else
+                monitor.addMensaje("¡Nivel 6 completado con Exito! Conexion de tuberias establecida.\n");
+              monitor.get_entidad(0)->setFin(true);
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
             }
           }
 
@@ -636,7 +656,10 @@ bool actuacionTecnico(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         monitor.addMensaje("Tecnico", "Cayo al precipicio");
         monitor.get_entidad(1)->resetEntidad();
         monitor.get_entidad(1)->setHitbox(true);
+<<<<<<< HEAD
         monitor.setResetActivado(true);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         monitor.finalizarJuego();
         monitor.setMostrarResultados(true);
         break;
@@ -660,7 +683,10 @@ bool actuacionTecnico(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         if (monitor.getLevel() == 3) {
           // El tecnico llegó a la casilla objetivo.
           monitor.addMensaje("Tecnico", "Objetivo alcanzado");
+<<<<<<< HEAD
           monitor.get_entidad(1)->setCompletoLosObjetivos();
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
           monitor.get_entidad(1)->setFin(true);
           monitor.finalizarJuego();
           monitor.setMostrarResultados(true);
@@ -683,7 +709,10 @@ bool actuacionTecnico(unsigned char celdaJ_inicial, unsigned char celdaJ_fin,
         monitor.addMensaje("Tecnico", "Cayo al vacio (desnivel)");
         monitor.get_entidad(1)->resetEntidad();
         monitor.get_entidad(1)->setHitbox(true);
+<<<<<<< HEAD
         monitor.setResetActivado(true);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         monitor.finalizarJuego();
         monitor.setMostrarResultados(true);
       }
@@ -975,7 +1004,11 @@ void nucleo_motor_juego(MonitorJuego &monitor, int acc) {
             monitor.get_entidad(0)->getFil(), monitor.get_entidad(0)->getCol(),
             monitor.get_entidad(1)->getFil(), monitor.get_entidad(1)->getCol());
         clock_t t0 = clock();
+<<<<<<< HEAD
         accion = monitor.get_entidad(0)->think(acc, estado[0], monitor.getLevel(), monitor.getImpactoEcologico(), monitor.getMaxImpacto());
+=======
+        accion = monitor.get_entidad(0)->think(acc, estado[0], monitor.getLevel(), monitor.getImpactoEcologico());
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
         clock_t t1 = clock();
         monitor.get_entidad(0)->addTiempo(t1 - t0);
         monitor.get_entidad(0)->setLastAction(accion);
@@ -984,7 +1017,11 @@ void nucleo_motor_juego(MonitorJuego &monitor, int acc) {
       }
     } else {
       clock_t t0 = clock();
+<<<<<<< HEAD
       accion = monitor.get_entidad(i)->think(acc, estado[i], monitor.getLevel(), monitor.getImpactoEcologico(), monitor.getMaxImpacto());
+=======
+      accion = monitor.get_entidad(i)->think(acc, estado[i], monitor.getLevel(), monitor.getImpactoEcologico());
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
       clock_t t1 = clock();
       monitor.get_entidad(i)->addTiempo(t1 - t0);
       monitor.get_entidad(i)->setLastAction(accion);
@@ -1094,14 +1131,18 @@ void nucleo_motor_juego(MonitorJuego &monitor, int acc) {
   }
 
   case 1: // Termina cuando se agotan ciclos, tiempo o energía
+<<<<<<< HEAD
     if (monitor.finJuego())
       monitor.setMostrarResultados(true);
     break;
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
   case 2: // Termina cuando el Ingeniero llega al objetivo
   case 3: // Termina cuando el Técnico llega al objetivo
     break;
 
   case 4: // Termina cuando el Ingeniero presenta un plan de tuberías
+<<<<<<< HEAD
     if (monitor.get_entidad(0)->getCanalizacionPlan().size() > 0) {
       if (monitor.checkLevel4()) {
         monitor.addMensaje("Sistema", "¡Nivel 4 completado con Exito!");
@@ -1111,6 +1152,11 @@ void nucleo_motor_juego(MonitorJuego &monitor, int acc) {
         monitor.addMensaje("Sistema", "Error Nivel 4: El plan presentado no es válido.");
         monitor.get_entidad(0)->setFin(false);
       }
+=======
+    if (monitor.checkLevel4()) {
+      monitor.addMensaje("Sistema", "¡Nivel 4 completado con Exito!");
+      monitor.get_entidad(0)->setFin(true);
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
       monitor.finalizarJuego();
       monitor.setMostrarResultados(true);
     }
@@ -1162,6 +1208,7 @@ void ImprimirResultadosJuego(MonitorJuego &monitor) {
   // ── Niveles 0 y 1: Reconocimiento ─────────────────────────────────────────
   case 0:
   case 1: {
+<<<<<<< HEAD
     bool exito;
     if (nivel == 0) {
       exito = monitor.get_entidad(0)->vivo() &&
@@ -1171,6 +1218,13 @@ void ImprimirResultadosJuego(MonitorJuego &monitor) {
     } else {
       exito = !monitor.getResetActivado();
     }
+=======
+    bool exito = monitor.get_entidad(0)->vivo() &&
+                 monitor.get_entidad(1)->vivo() &&
+                 monitor.get_entidad(0)->getBateria() > 0 &&
+                 monitor.get_entidad(1)->getBateria() > 0 &&
+                 (nivel == 0 || monitor.getImpactoEcologico() < monitor.getMaxImpacto());
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     ss << "Nivel " << nivel << (exito ? " completado con Exito!" : " NO completado.");
     flush();
     ss << "Energia Ingeniero: " << monitor.get_entidad(0)->getBateria();
@@ -1194,7 +1248,11 @@ void ImprimirResultadosJuego(MonitorJuego &monitor) {
 
   // ── Nivel 2: Corre, Ingeniero, Corre ──────────────────────────────────────
   case 2: {
+<<<<<<< HEAD
     ss << "Nivel 2 " << (monitor.get_entidad(0)->SeHanConseguidoLosObjetivos() ? "completado con Exito!" : "NO completado.");
+=======
+    ss << "Nivel 2 " << (monitor.get_entidad(0)->fin() ? "completado con Exito!" : "NO completado.");
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     flush();
     ss << "Longitud camino Ingeniero: "
        << monitor.getInstantesInicial() - monitor.get_entidad(0)->getInstantesPendientes();
@@ -1214,7 +1272,11 @@ void ImprimirResultadosJuego(MonitorJuego &monitor) {
 
   // ── Nivel 3: El Técnico mide sus esfuerzos ────────────────────────────────
   case 3: {
+<<<<<<< HEAD
     ss << "Nivel 3 " << (monitor.get_entidad(1)->SeHanConseguidoLosObjetivos() ? "completado con Exito!" : "NO completado.");
+=======
+    ss << "Nivel 3 " << (monitor.get_entidad(1)->fin() ? "completado con Exito!" : "NO completado.");
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     flush();
     ss << "Longitud camino Tecnico: "
        << monitor.getInstantesInicial() - monitor.get_entidad(1)->getInstantesPendientes();
@@ -1234,14 +1296,38 @@ void ImprimirResultadosJuego(MonitorJuego &monitor) {
 
   // ── Nivel 4: Planifica, Ingeniero, Planifica ──────────────────────────────
   case 4: {
+<<<<<<< HEAD
     ss << "Nivel 4 " << (monitor.get_entidad(0)->SeHanConseguidoLosObjetivos() ? "completado con Exito!" : "NO completado.");
+=======
+    ss << "Nivel 4 " << (monitor.get_entidad(0)->fin() ? "completado con Exito!" : "NO completado.");
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     flush();
     ss << "Longitud red tuberias: " << monitor.get_entidad(0)->getCanalizacionPlan().size();
     flush();
 
     int simulated_impact = 0;
     ListaCasillasPlan plan = monitor.get_entidad(0)->getCanalizacionPlan();
+<<<<<<< HEAD
     simulated_impact = monitor.calcularImpactoPlan(plan);
+=======
+    if (!plan.empty()) {
+      auto it = plan.begin();
+      unsigned char celda = monitor.getMapa()->getCelda(it->fil, it->col);
+      if (it->op == -1) simulated_impact += monitor.getCosteEco(DIG,   celda);
+      if (it->op ==  1) simulated_impact += monitor.getCosteEco(RAISE, celda);
+      auto prev = it;
+      ++it;
+      for (; it != plan.end(); ++it) {
+        celda = monitor.getMapa()->getCelda(it->fil, it->col);
+        if (it->op == -1) simulated_impact += monitor.getCosteEco(DIG,   celda);
+        if (it->op ==  1) simulated_impact += monitor.getCosteEco(RAISE, celda);
+        unsigned char celda_prev = monitor.getMapa()->getCelda(prev->fil, prev->col);
+        simulated_impact += monitor.getCosteEco(INSTALL, celda_prev);
+        simulated_impact += monitor.getCosteEco(INSTALL, celda);
+        prev = it;
+      }
+    }
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     ss << "Impacto Ecologico: " << simulated_impact;
     flush();
     break;
@@ -1250,7 +1336,11 @@ void ImprimirResultadosJuego(MonitorJuego &monitor) {
   // ── Niveles 5 y 6: A Poner Tuberías ──────────────────────────────────────
   case 5:
   case 6: {
+<<<<<<< HEAD
     bool exito = monitor.get_entidad(0)->SeHanConseguidoLosObjetivos() || monitor.get_entidad(1)->SeHanConseguidoLosObjetivos();
+=======
+    bool exito = monitor.get_entidad(0)->fin() || monitor.get_entidad(1)->fin();
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     ss << "Nivel " << nivel << (exito ? " completado con Exito! Conexion de tuberias establecida."
                                       : " NO completado.");
     flush();

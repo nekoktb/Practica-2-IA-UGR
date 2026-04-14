@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 // Bugfix: Energia inicial hardcodeada solucionada
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 #include "motorlib.hpp"
 #include <fstream>
 
@@ -91,7 +94,10 @@ int main(int argc, char **argv)
     srand(argumentos.semilla);
     monitor.setMaxImpacto(argumentos.eco_impact_threshold);
     monitor.setEnergiaInicial(argumentos.initial_energy);
+<<<<<<< HEAD
     monitor.setInstantesInicial(argumentos.max_instantes);
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     monitor.startGame(argumentos.level, argumentos.max_instantes);
 
     ifstream ifile;
@@ -150,10 +156,17 @@ int main(int argc, char **argv)
     monitor.inicializar(argumentos.posInicialIngeniero.f, argumentos.posInicialIngeniero.c, argumentos.posInicialIngeniero.brujula, argumentos.posInicialTecnico.f, argumentos.posInicialTecnico.c, argumentos.posInicialTecnico.brujula, argumentos.semilla);
     
     monitor.get_entidad(0)->setOrientacion(argumentos.posInicialIngeniero.brujula);
+<<<<<<< HEAD
     monitor.get_entidad(0)->setBateria(argumentos.initial_energy);
     
     monitor.get_entidad(1)->setOrientacion(argumentos.posInicialTecnico.brujula);
     monitor.get_entidad(1)->setBateria(argumentos.initial_energy);
+=======
+    monitor.get_entidad(0)->setBateria(3000);
+    
+    monitor.get_entidad(1)->setOrientacion(argumentos.posInicialTecnico.brujula);
+    monitor.get_entidad(1)->setBateria(3000);
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
     
     monitor.setPasos(argumentos.max_instantes);
     monitor.setRetardo(0);

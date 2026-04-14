@@ -1,4 +1,5 @@
 # Práctica 2 de *Inteligencia Artificial*, curso 2025/2026
+<<<<<<< HEAD
 
 ## Prerrequisitos
 
@@ -79,3 +80,5 @@ Cuando realices cualquier modificación en el código, debes recompilar, así qu
 ## Más información
 Hemos creado un [fichero con preguntas frecuentes](./FAQ.md) que han ido apareciendo en las distintas sesiones de prácticas.
 
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664

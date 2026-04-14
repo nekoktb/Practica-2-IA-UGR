@@ -45,6 +45,10 @@ struct ubicacion {
   bool operator==(const ubicacion &ub) const {
     return (f == ub.f and c == ub.c and brujula == ub.brujula);
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 };
 
 struct Sensores {
@@ -68,7 +72,10 @@ struct Sensores {
   int GotoF;     // Fila destino enviada por el ingeniero
   int GotoC;     // Columna destino enviada por el ingeniero
   int ecologico; // Nivel de impacto ecológico provocado
+<<<<<<< HEAD
   int max_ecologico; // Máximo impacto ecológico permitido
+=======
+>>>>>>> b5a4dd27023c0eea04d51eaccd7a43b2360f0664
 };
 
 class Comportamiento {
