@@ -66,9 +66,10 @@ char ViablePorAlturaI(char casilla, int dif, bool zap){
  * @param vis_c número de visitas a la casilla central
  * @param vis_d número de visitas a la casilla derecha
  * @param zap indica si el agente tiene zapatillas
- * @return 2 si es mejor WALK, 1 para TURN_SL y 3 para TURN_SR. 0 no hay nada interesante.
+ * @param can_jump indica si se puede saltar sobre la casilla central
+ * @return 2 si es mejor WALK, 1 para TURN_SL, 3 para TURN_SR, 4 para JUMP. 0 no hay nada interesante.
  */
-int VeoCasillaInteresanteI_Nivel0(char i, char c, char d, int vis_i, int vis_c, int vis_d, bool zap){
+int VeoCasillaInteresanteI_Nivel0(char i, char c, char d, int vis_i, int vis_c, int vis_d, bool zap, bool can_jump){
   // Prioridad absoluta a la meta ('U')
   if (c == 'U') return 2; // Centro
   if (i == 'U') return 1; // Izquierda
@@ -87,6 +88,12 @@ int VeoCasillaInteresanteI_Nivel0(char i, char c, char d, int vis_i, int vis_c, 
   if (transitable_c == true && vis_c < min_visitas) { 
       mejor_opcion = 2;       // 2 significa avanzar de frente
       min_visitas = vis_c;    
+  }
+
+  // Si no es transitable, pero se puede saltar, considerar salto
+  if (!transitable_c && can_jump && vis_c < min_visitas) {
+      mejor_opcion = 6;       // 6 significa la casilla 2 veces delante (saltar)
+      min_visitas = vis_c;
   }
 
   // 3. Evaluamos la casilla de la IZQUIERDA
@@ -149,17 +156,43 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_0(Sensores sensores
   estado_dch.brujula = (Orientacion)(((int)estado_actual.brujula + 1) % 8);
   ubicacion pos_d = Delante(estado_dch);
   int vis_d = mapa_visitas[{pos_d.f, pos_d.c}];
-
  
+  // si ve una U justo delante y otra U dos casillas más adelante,
+  // salta a la más lejana para dejar la U más cercana al técnico.
+  bool salto_a_U_doble = (sensores.superficie[2] == 'U' && sensores.superficie[6] == 'U');
+  if (salto_a_U_doble && !sensores.choque) {
+    accion = JUMP;
+    last_action = accion;
+    return accion;
+  }
+
+  // si no, continua normalmente evaluando las casillas de alrededor
+
+  ubicacion dos_pasos = Delante(Delante(estado_actual));
+  bool can_jump = false;
+  if (dos_pasos.f >= 0 && dos_pasos.f < mapaResultado.size() && dos_pasos.c >= 0 && dos_pasos.c < mapaResultado[0].size()) {
+    can_jump = EsCasillaTransitableLevel0(dos_pasos.f, dos_pasos.c, tiene_zapatillas);
+    int indice_dos = 4;
+    if ((int)sensores.rumbo % 2 == 1) indice_dos = 5;
+    can_jump = can_jump && (sensores.agentes[indice_dos] == '_') && (sensores.superficie[2] != 'P' && sensores.superficie[2] != 'B' && sensores.superficie[2] != 'M');
+  }
+
   char i = ViablePorAlturaI(sensores.superficie[1], sensores.cota[1] - sensores.cota[0], tiene_zapatillas);
   char c = ViablePorAlturaI(sensores.superficie[2], sensores.cota[2] - sensores.cota[0], tiene_zapatillas);
   char d = ViablePorAlturaI(sensores.superficie[3], sensores.cota[3] - sensores.cota[0], tiene_zapatillas);
   
-  int pos = VeoCasillaInteresanteI_Nivel0(i, c, d, vis_i, vis_c, vis_d, tiene_zapatillas);
+  int pos = VeoCasillaInteresanteI_Nivel0(i, c, d, vis_i, vis_c, vis_d, tiene_zapatillas, can_jump);
 
   switch (pos){
   case 2:
     if (!sensores.choque) accion = WALK;
+    else {
+      accion = TURN_SL;
+      giro45Izq = 3; // para dar la vuelta completa
+    }
+    break;
+  case 6:
+    if (!sensores.choque) accion = JUMP;
     else {
       accion = TURN_SL;
       giro45Izq = 3; // para dar la vuelta completa
