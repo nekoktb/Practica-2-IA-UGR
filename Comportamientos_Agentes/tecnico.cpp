@@ -255,7 +255,6 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
  
   //NOTA: de momento el técnico no tiene en cuenta las zapatillas
 
-  if (sensores.superficie[0] == 'U') return IDLE; // Condición de parada base
 
   ubicacion estado_actual;
   estado_actual.f = sensores.posF;
