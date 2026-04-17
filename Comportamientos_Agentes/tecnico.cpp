@@ -140,7 +140,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_0(Sensores sensores) {
       accion = WALK;
     } else {
       accion = TURN_SL;
-      giro45Izq = 3;
+      giro45Izq = 3; // para dar la vuelta completa
     }
     break;
   case 1:
@@ -151,6 +151,11 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_0(Sensores sensores) {
     break;  
   default:
     accion = TURN_SL;
+    girando_bucle = true; 
+    if (girando_bucle){
+      giro45Izq = 5; // para ir a la derecha
+      girando_bucle = false; 
+    }
     break;
   }
   

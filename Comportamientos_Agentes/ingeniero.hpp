@@ -26,6 +26,7 @@ public:
     last_action = IDLE;
     tiene_zapatillas = false;
     giro45Izq = 0;
+    girando_bucle = false;
   }
 
   /**
@@ -203,6 +204,7 @@ private:
   int giro45Izq;          // Indica el numero de giros a la izq que quedan  
   // Mapa para contar cuántas veces se ha visitado una coordenada {fila, columna}
   std::map<std::pair<int, int>, int> mapa_visitas;
+  bool girando_bucle;     
 };
 
 
