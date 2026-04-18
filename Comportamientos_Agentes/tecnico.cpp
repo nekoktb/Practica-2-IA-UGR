@@ -239,6 +239,10 @@ int VeoCasillaInteresanteT_Nivel1(char i, char c, char d, int vis_i, int vis_c, 
 Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
   Action accion = IDLE;
 
+  // Si va a quedarse sin energia espera a que el ingeniero continue
+  if (sensores.energia < 20 && sensores.vida > 20) {
+      return accion;
+  }
   // Si está evadiendo al ingeniero, continuar girando
   if (giro45Izq > 0) {
     accion = TURN_SL;
@@ -298,7 +302,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
       accion = TURN_SR;
       break;
     default:
-      accion = TURN_SL;
+      accion = TURN_SR;
       break;
   }
 

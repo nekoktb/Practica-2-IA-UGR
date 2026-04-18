@@ -305,6 +305,10 @@ Action ComportamientoIngeniero::ComportamientoIngenieroNivel_1(Sensores sensores
   
   Action accion = IDLE;
 
+  // Si va a quedarse sin energia espera a que el tecnico continue
+  if (sensores.energia < 20 && sensores.vida > 20) {
+      return accion;
+  }
   // Si está evadiendo al técnico, continuar girando
   if (giro45Izq > 0) {
     accion = TURN_SL;
