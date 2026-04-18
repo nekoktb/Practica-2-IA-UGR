@@ -243,7 +243,7 @@ Action ComportamientoTecnico::ComportamientoTecnicoNivel_1(Sensores sensores) {
   if (sensores.energia < 20 && sensores.vida > 20) {
       return accion;
   }
-  // Si está evadiendo al ingeniero, continuar girando
+  // Si esta girando
   if (giro45Izq > 0) {
     accion = TURN_SL;
     giro45Izq--;
